@@ -110,6 +110,7 @@ registerOnce('npc-model', {
 
   init() {
     this._disposed = false;
+    this._chest = null;
     this._worldPosition = new THREE.Vector3();
     this._cameraWorldPosition = new THREE.Vector3();
     this._clipPosition = new THREE.Vector3();
@@ -122,6 +123,8 @@ registerOnce('npc-model', {
       if (this._disposed) return;
 
       const sceneClone = cloneSharedScene(sceneRoot);
+      if (this._disposed) return;
+
       const npcInfo = {
         npcName: this.data.npcName,
         npcGreeting: this.data.npcGreeting,
@@ -179,6 +182,7 @@ registerOnce('npc-model', {
 
   remove() {
     this._disposed = true;
+    this._chest = null;
     if (this.npcModel) {
       this.npcModel.scene.traverse((node) => {
         if (node.isMesh) unregisterNpcMesh(node);

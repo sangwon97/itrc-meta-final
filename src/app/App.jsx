@@ -327,8 +327,7 @@ function buildSharedSceneMarkup({ x, y, z }) {
         id="player-camera"
         camera
         look-controls="magicWindowTrackingEnabled: false; touchEnabled: false"
-        mobile-touch-look="enabled: true; reverseDrag: false"
-        show-position>
+        mobile-touch-look="enabled: true; reverseDrag: false">
       </a-entity>
     </a-entity>
 `;
@@ -1354,7 +1353,6 @@ export default function App() {
                   <p>{mobileHintToast}</p>
                 </div>
               ) : null}
-              <div id="debug-ui" />
             </>
           ) : null}
         </>

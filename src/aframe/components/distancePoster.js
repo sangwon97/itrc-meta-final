@@ -3,7 +3,6 @@ import { registerPosterMesh, unregisterPosterMesh } from '../utils/posterRegistr
 import { getPosterInfo } from '../../services/api.js';
 
 const pendingImageLoads = new Map();
-const materialCache = new Map();
 const placeholderMaterial = new THREE.MeshBasicMaterial({
   color: 0x666666,
   side: THREE.FrontSide,
@@ -69,55 +68,15 @@ function createScaledTexture(image, sceneEl, maxDimension, flipX = false) {
   return texture;
 }
 
-function disposeMaterial(material) {
-  if (!material || material === placeholderMaterial) return;
-  material.map?.dispose?.();
-  material.dispose?.();
-}
-
-function createPosterMaterial(src, sceneEl, maxDimension, flipX = false) {
-  return loadImage(src).then((image) => {
-    const texture = createScaledTexture(image, sceneEl, maxDimension, flipX);
-    return new THREE.MeshBasicMaterial({
-      map: texture,
-      color: 0xffffff,
-      side: THREE.FrontSide,
-    });
-  });
-}
-
-function loadPosterMaterial(src, sceneEl, quality, flipX = false) {
+function loadPosterTexture(src, sceneEl, quality, flipX = false) {
   const mobileProfile = isMobileTextureProfile();
   const maxDimension = quality === 'high'
     ? (mobileProfile ? 512 : 1024)
     : (mobileProfile ? 64 : 128);
 
-  // Low-quality posters stay shared to avoid repeated decoding.
-  // High-quality posters are created per-entity and disposed on downgrade.
-  if (quality === 'high') {
-    return createPosterMaterial(src, sceneEl, maxDimension, flipX).then((material) => ({
-      material,
-      shared: false,
-    }));
-  }
-
-  const cacheKey = `${src}:low:${flipX}:${maxDimension}`;
-  if (materialCache.has(cacheKey)) {
-    return materialCache.get(cacheKey);
-  }
-
-  const promise = createPosterMaterial(src, sceneEl, maxDimension, flipX)
-    .then((material) => ({
-      material,
-      shared: true,
-    }))
-    .catch((error) => {
-      materialCache.delete(cacheKey);
-      throw error;
-    });
-
-  materialCache.set(cacheKey, promise);
-  return promise;
+  return loadImage(src).then((image) =>
+    createScaledTexture(image, sceneEl, maxDimension, flipX),
+  );
 }
 
 function ensurePosterPreviewPlate(node) {
@@ -165,8 +124,7 @@ registerOnce('distance-poster', {
     this._loadToken = 0;
     this._meshNodes = [];
     this._anchor = { x: this.data.anchorX, z: this.data.anchorZ };
-    this._activeMaterial = null;
-    this._activeMaterialShared = true;
+    this._material = null;
     this._hasDeferredReady = false;
     this.el.dataset.deferredReady = 'false';
     this._onModelLoaded = this.handleModelLoaded.bind(this);
@@ -232,32 +190,40 @@ registerOnce('distance-poster', {
     this.applyQuality(this.getDesiredQuality());
   },
 
-  releaseActiveMaterial() {
-    if (this._activeMaterial && !this._activeMaterialShared) {
-      disposeMaterial(this._activeMaterial);
-    }
-    this._activeMaterial = null;
-    this._activeMaterialShared = true;
+  ensurePosterMaterial() {
+    if (this._material) return this._material;
+    this._material = new THREE.MeshBasicMaterial({
+      color: 0xffffff,
+      side: THREE.FrontSide,
+    });
+    return this._material;
   },
 
-  applyMaterial(material, { shared = false } = {}) {
-    const previousMaterial = this._activeMaterial;
-    const previousMaterialShared = this._activeMaterialShared;
+  applyPlaceholder() {
+    this._meshNodes.forEach((node) => {
+      if (node.material !== placeholderMaterial) {
+        node.material = placeholderMaterial;
+      }
+    });
+  },
+
+  applyTexture(texture) {
+    const material = this.ensurePosterMaterial();
+    const previousMap = material.map;
+    material.map = texture;
+    material.needsUpdate = true;
+
+    if (previousMap && previousMap !== texture) {
+      previousMap.dispose();
+    }
 
     this._meshNodes.forEach((node) => {
-      node.material = material;
+      if (node.material !== material) {
+        node.material = material;
+      }
     });
 
-    this._activeMaterial = material;
-    this._activeMaterialShared = shared;
-
-    if (previousMaterial && previousMaterial !== material && !previousMaterialShared) {
-      disposeMaterial(previousMaterial);
-    }
-
-    if (this._quality !== 'placeholder') {
-      this.markDeferredReady(true);
-    }
+    this.markDeferredReady(true);
   },
 
   applyQuality(quality) {
@@ -266,20 +232,18 @@ registerOnce('distance-poster', {
 
     if (quality === 'placeholder') {
       this._loadToken += 1;
-      this.applyMaterial(placeholderMaterial, { shared: true });
+      this.applyPlaceholder();
       return;
     }
 
     const loadToken = ++this._loadToken;
-    loadPosterMaterial(this.data.texture, this.el.sceneEl, quality, this.data.flipX)
-      .then(({ material, shared }) => {
+    loadPosterTexture(this.data.texture, this.el.sceneEl, quality, this.data.flipX)
+      .then((texture) => {
         if (loadToken !== this._loadToken || this._quality !== quality) {
-          if (!shared) {
-            disposeMaterial(material);
-          }
+          texture.dispose();
           return;
         }
-        this.applyMaterial(material, { shared });
+        this.applyTexture(texture);
       })
       .catch((error) => {
         console.error('[distance-poster] 텍스처 로드 실패:', error);
@@ -306,8 +270,12 @@ registerOnce('distance-poster', {
     this._loadToken += 1;
     this.el.removeEventListener('model-loaded', this._onModelLoaded);
     this.el.removeEventListener('model-error', this._onModelError);
-    this.releaseActiveMaterial();
     this._meshNodes.forEach((node) => unregisterPosterMesh(node));
     this._meshNodes = [];
+    if (this._material) {
+      this._material.map?.dispose?.();
+      this._material.dispose();
+      this._material = null;
+    }
   },
 });

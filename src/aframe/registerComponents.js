@@ -4,7 +4,6 @@ import './components/categoryTexture.js';
 import './components/boothNameGenerator.js';
 import './components/categoryManager.js';
 import './components/distancePoster.js';
-import './components/showPosition.js';
 import './components/navmeshFollow.js';
 import './components/cameraRelativeWasd.js';
 import './components/mobileTouchLook.js';
