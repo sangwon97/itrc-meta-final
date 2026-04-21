@@ -792,11 +792,18 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    // 백그라운드 탭 복귀 시 누적 tick / OS 의 GPU 회수로 인한 크래시 방지.
-    // 숨겨진 동안 A-Frame 씬을 멈추고 복귀 시 재개.
+    // 최초 렌더가 시작되기 전에는 scene.pause() 를 걸면 renderstart 이벤트가
+    // 영영 안 찍혀서 로딩 트래커가 멈춘다. renderstart 플래그로 가드.
+    let hasRenderedOnce = false;
+    let overlayTimer = null;
+
+    const handleRenderstart = () => {
+      hasRenderedOnce = true;
+    };
+
     const handleVisibilityChange = () => {
       const scene = document.querySelector('a-scene');
-      if (!scene?.hasLoaded) return;
+      if (!scene?.hasLoaded || !hasRenderedOnce) return;
       if (document.hidden) {
         scene.pause();
       } else {
@@ -806,25 +813,42 @@ export default function App() {
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
-    // WebGL 컨텍스트 손실 감지. 모바일에서 화면 꺼짐 / 메모리 압박 시
-    // 브라우저가 GPU 자원을 회수하면 렌더러가 무효 상태가 되어 갑자기 크래시함.
     let canvasCleanup = null;
+    let sceneCleanup = null;
     let pollTimer = null;
 
-    const attachCanvasListeners = () => {
-      const canvas = document.querySelector('a-scene canvas');
+    const attach = () => {
+      const scene = document.querySelector('a-scene');
+      if (!scene) return false;
+
+      if (!sceneCleanup) {
+        scene.addEventListener('renderstart', handleRenderstart, { once: true });
+        sceneCleanup = () => scene.removeEventListener('renderstart', handleRenderstart);
+      }
+
+      const canvas = scene.querySelector('canvas');
       if (!canvas) return false;
 
+      // WebGL 컨텍스트 손실 처리. Three.js 가 재생성을 자동 처리하므로 우리는
+      // scene.pause() 나 window.reload() 같은 aggressive 동작 없이 사용자에게
+      // 알림 UI 만 노출한다. transient 손실(탭 전환 등)에서 오버레이가 깜박이지
+      // 않도록 표시를 500ms 지연, 그 사이 복원되면 취소.
       const handleContextLost = (event) => {
         event.preventDefault();
-        console.warn('[webgl] context lost - 씬 일시정지 후 복구 UI 노출');
-        setWebglContextLost(true);
-        document.querySelector('a-scene')?.pause?.();
+        console.warn('[webgl] context lost');
+        overlayTimer = window.setTimeout(() => {
+          setWebglContextLost(true);
+          overlayTimer = null;
+        }, 500);
       };
 
       const handleContextRestored = () => {
-        console.info('[webgl] context restored - 페이지 새로고침');
-        window.location.reload();
+        console.info('[webgl] context restored');
+        if (overlayTimer) {
+          window.clearTimeout(overlayTimer);
+          overlayTimer = null;
+        }
+        setWebglContextLost(false);
       };
 
       canvas.addEventListener('webglcontextlost', handleContextLost);
@@ -837,9 +861,9 @@ export default function App() {
       return true;
     };
 
-    if (!attachCanvasListeners()) {
+    if (!attach()) {
       pollTimer = window.setInterval(() => {
-        if (attachCanvasListeners()) {
+        if (attach()) {
           window.clearInterval(pollTimer);
           pollTimer = null;
         }
@@ -849,7 +873,9 @@ export default function App() {
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       canvasCleanup?.();
+      sceneCleanup?.();
       if (pollTimer) window.clearInterval(pollTimer);
+      if (overlayTimer) window.clearTimeout(overlayTimer);
     };
   }, []);
 
