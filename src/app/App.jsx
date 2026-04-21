@@ -880,6 +880,52 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    // 모바일 GPU 발열/배터리 소모를 줄이기 위해 렌더 루프를 30fps 로 캡.
+    // A-Frame 은 rAF 기반이라 기본 60fps. renderer.render 를 래핑해서
+    // 목표 프레임 간격 이전 호출을 드롭한다. tick 은 원래 빈도로 도므로
+    // 로직 정확도에 영향 없음.
+    if (!isMobileScene) return;
+
+    let rendererCleanup = null;
+    let pollTimer = null;
+
+    const attachRendererCap = () => {
+      const scene = document.querySelector('a-scene');
+      const renderer = scene?.renderer;
+      if (!renderer || typeof renderer.render !== 'function') return false;
+
+      const targetFrameTime = 1000 / 30;
+      let lastRenderTime = 0;
+      const originalRender = renderer.render.bind(renderer);
+      renderer.render = function cappedRender(...args) {
+        const now = performance.now();
+        if (now - lastRenderTime < targetFrameTime - 1) return;
+        lastRenderTime = now;
+        return originalRender(...args);
+      };
+
+      rendererCleanup = () => {
+        renderer.render = originalRender;
+      };
+      return true;
+    };
+
+    if (!attachRendererCap()) {
+      pollTimer = window.setInterval(() => {
+        if (attachRendererCap()) {
+          window.clearInterval(pollTimer);
+          pollTimer = null;
+        }
+      }, 200);
+    }
+
+    return () => {
+      rendererCleanup?.();
+      if (pollTimer) window.clearInterval(pollTimer);
+    };
+  }, [isMobileScene]);
+
+  useEffect(() => {
     const rigEntity = document.getElementById('rig');
     if (!rigEntity) return;
 
