@@ -18,6 +18,9 @@ function loadImage(src) {
 
   const promise = new Promise((resolve, reject) => {
     const image = new Image();
+    // CDN 이미지를 canvas 에 draw 하려면 crossOrigin 설정 필수.
+    // 없으면 canvas 가 tainted 되어 texSubImage2D 에서 SecurityError.
+    image.crossOrigin = 'anonymous';
     image.onload = () => resolve(image);
     image.onerror = reject;
     image.src = src;

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { drawMiniMapFrame } from './utils.js';
+import { cdnAsset } from '../../services/assetUrl.js';
 
 const MINIMAP_BOUNDS = {
   minX: -24.299,
@@ -133,7 +134,8 @@ export default function MiniMap({ route, searchMarkers }) {
 
     if (!backgroundImageRef.current) {
       const minimapImage = new Image();
-      minimapImage.src = 'imgs/minimap.png';
+      minimapImage.crossOrigin = 'anonymous';
+      minimapImage.src = cdnAsset('imgs/minimap.png');
       backgroundImageRef.current = minimapImage;
     }
 
