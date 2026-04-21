@@ -99,7 +99,6 @@ registerOnce('proximity-npc', {
 
   unloadModel() {
     this.el.removeAttribute('npc-model');
-    this.el.removeObject3D('npc');
     this.isLoaded = false;
     this.setHintVisible(false);
   },
