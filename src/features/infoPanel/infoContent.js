@@ -1,9 +1,11 @@
 import { getForumLink } from './forumLinks.js';
+import { cdnAsset } from '../../services/assetUrl.js';
 
 // 안내 메뉴 데이터
 const logo = (label, imageSrc, imageAlt) => ({
   label,
-  imageSrc,
+  // imageSrc 는 CDN URL 로 변환해 보여주고, href 는 원본 경로로 forumLinks 에서 조회.
+  imageSrc: cdnAsset(imageSrc),
   imageAlt: imageAlt || label,
   href: getForumLink(imageSrc),
 });
@@ -14,7 +16,7 @@ export const infoMenuItems = [
     label: '행사개요',
     title: 'ITRC 인재양성대전 2026',
     hero: {
-      imageSrc: 'imgs/ForumInfo/13259_522475070.webp',
+      imageSrc: cdnAsset('imgs/ForumInfo/13259_522475070.webp'),
       imageAlt: 'ITRC 인재양성대전 2026 메인 포스터',
       badge: 'Main Event',
       caption: 'AI 대전환 시대, 기술주권을 이끄는 미래인재',
@@ -36,7 +38,7 @@ export const infoMenuItems = [
     label: '주요행사',
     title: '주요행사 안내',
     hero: {
-      imageSrc: 'imgs/ForumInfo/155545_522475100.webp',
+      imageSrc: cdnAsset('imgs/ForumInfo/155545_522475100.webp'),
       imageAlt: 'ITRC 인재양성대전 2026 주요행사 안내 이미지',
       badge: 'Program',
       caption: '행사일정, 간담회, 문화행사를 한눈에 확인할 수 있습니다.',
@@ -74,7 +76,7 @@ export const infoMenuItems = [
     label: '전시관 안내',
     title: '전시관 및 카테고리 안내',
     hero: {
-      imageSrc: 'imgs/ForumInfo/153010_522475100.webp',
+      imageSrc: cdnAsset('imgs/ForumInfo/153010_522475100.webp'),
       imageAlt: 'ITRC 인재양성대전 2026 그룹전시관 카테고리 안내 이미지',
       badge: 'Exhibition',
       caption: '전시관은 10개 그룹전시관과 특별전시관으로 구성되어 있습니다.',

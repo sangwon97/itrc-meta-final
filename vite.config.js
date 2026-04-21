@@ -3,10 +3,9 @@ import path from 'node:path';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-// models / npc / videos 는 CDN(itrc-assets 버킷) 에서 서빙하므로 dist 에 복사하지 않는다.
+// models / npc / videos / imgs 는 CDN(itrc-assets 버킷) 에서 서빙하므로 dist 에 복사하지 않는다.
 // CDN URL 은 src/services/assetUrl.js 의 cdnAsset() 으로 조립된다.
 const staticAssets = [
-  'imgs',
   'BoothName_PosRot.csv',
   'threejs_objects_export.csv',
   'NPC_PosRot.csv',
