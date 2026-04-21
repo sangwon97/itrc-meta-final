@@ -1,0 +1,244 @@
+/* App Base: 전역 레이아웃, 디자인 토큰, 공통 스크롤바, A-Frame 캔버스와 씬 상태 오버레이 스타일 */
+a-scene canvas {
+  touch-action: manipulation;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  background: #050505;
+}
+
+:root {
+  --ui-bg: rgba(7, 13, 27, 0.86);
+  --ui-border: rgba(138, 180, 248, 0.35);
+  --ui-text: #eff6ff;
+  --ui-muted: #bfdbfe;
+  --ui-shadow: 0 20px 45px rgba(2, 8, 23, 0.5);
+  --scrollbar-size: 10px;
+  --scrollbar-track: rgba(0, 0, 0, 0.114);
+  --scrollbar-thumb: rgba(0, 0, 0, 0.206);
+  --scrollbar-thumb-hover: rgba(0, 0, 0, 0.099);
+}
+
+#welcome-modal,
+.search-results,
+#info-mobile-actions,
+#info-modal,
+.info-modal-panel-body,
+.poster-modal-description,
+#poster-mobile-info,
+#info-mobile-sheet,
+#npc-modal,
+.npc-faq-list {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+#welcome-modal::-webkit-scrollbar,
+.search-results::-webkit-scrollbar,
+#info-mobile-actions::-webkit-scrollbar,
+#info-modal::-webkit-scrollbar,
+.info-modal-panel-body::-webkit-scrollbar,
+.poster-modal-description::-webkit-scrollbar,
+#poster-mobile-info::-webkit-scrollbar,
+#info-mobile-sheet::-webkit-scrollbar,
+#npc-modal::-webkit-scrollbar,
+.npc-faq-list::-webkit-scrollbar {
+  width: var(--scrollbar-size);
+  height: var(--scrollbar-size);
+}
+
+#welcome-modal::-webkit-scrollbar-track,
+.search-results::-webkit-scrollbar-track,
+#info-mobile-actions::-webkit-scrollbar-track,
+#info-modal::-webkit-scrollbar-track,
+.info-modal-panel-body::-webkit-scrollbar-track,
+.poster-modal-description::-webkit-scrollbar-track,
+#poster-mobile-info::-webkit-scrollbar-track,
+#info-mobile-sheet::-webkit-scrollbar-track,
+#npc-modal::-webkit-scrollbar-track,
+.npc-faq-list::-webkit-scrollbar-track {
+  border-radius: 999px;
+  background: var(--scrollbar-track);
+}
+
+#welcome-modal::-webkit-scrollbar-thumb,
+.search-results::-webkit-scrollbar-thumb,
+#info-mobile-actions::-webkit-scrollbar-thumb,
+#info-modal::-webkit-scrollbar-thumb,
+.info-modal-panel-body::-webkit-scrollbar-thumb,
+.poster-modal-description::-webkit-scrollbar-thumb,
+#poster-mobile-info::-webkit-scrollbar-thumb,
+#info-mobile-sheet::-webkit-scrollbar-thumb,
+#npc-modal::-webkit-scrollbar-thumb,
+.npc-faq-list::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background:
+    linear-gradient(180deg, rgba(100, 116, 139, 0.92), rgba(51, 65, 85, 0.9))
+    padding-box;
+}
+
+#welcome-modal::-webkit-scrollbar-thumb:hover,
+.search-results::-webkit-scrollbar-thumb:hover,
+#info-mobile-actions::-webkit-scrollbar-thumb:hover,
+#info-modal::-webkit-scrollbar-thumb:hover,
+.info-modal-panel-body::-webkit-scrollbar-thumb:hover,
+.poster-modal-description::-webkit-scrollbar-thumb:hover,
+#poster-mobile-info::-webkit-scrollbar-thumb:hover,
+#info-mobile-sheet::-webkit-scrollbar-thumb:hover,
+#npc-modal::-webkit-scrollbar-thumb:hover,
+.npc-faq-list::-webkit-scrollbar-thumb:hover {
+  background:
+    linear-gradient(180deg, rgba(148, 163, 184, 0.96), var(--scrollbar-thumb-hover))
+    padding-box;
+}
+
+a-scene {
+  width: 100%;
+  height: 100%;
+}
+
+a-scene canvas {
+  touch-action: none;
+}
+
+a-scene .a-enter-vr-button,
+a-scene .a-enter-ar-button,
+a-scene .a-fullscreen-button {
+  display: none !important;
+}
+
+#mobile-scene-status {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(2, 6, 23, 0.68);
+  backdrop-filter: blur(8px);
+}
+
+#mobile-scene-status p {
+  margin: 0;
+  padding: 14px 18px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 18px;
+  background: rgba(7, 13, 27, 0.86);
+  color: rgba(226, 232, 240, 0.96);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-align: center;
+  box-shadow: 0 14px 30px rgba(2, 8, 23, 0.34);
+}
+
+@keyframes mobile-hint-toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+#mobile-hint-toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 132px);
+  z-index: 9500;
+  width: min(calc(100vw - 28px), 360px);
+  transform: translateX(-50%);
+  pointer-events: none;
+  animation: mobile-hint-toast-in 0.25s ease-out both;
+}
+
+#mobile-hint-toast p {
+  margin: 0;
+  padding: 14px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 18px;
+  background: rgba(15, 23, 42, 0.94);
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.5;
+  text-align: center;
+  white-space: pre-line;
+  box-shadow: 0 16px 36px rgba(2, 8, 23, 0.42);
+  backdrop-filter: blur(8px);
+}
+
+.mobile-scene-status-line {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 1.5em;
+  white-space: nowrap;
+}
+
+.typing-ellipsis {
+  display: inline-block;
+  min-width: 3ch;
+  text-align: left;
+}
+
+@media (max-width: 768px) {
+  #welcome-modal,
+  .search-results,
+  #info-mobile-actions,
+  #info-modal,
+  .info-modal-panel-body,
+  .poster-modal-description,
+  #poster-mobile-info,
+  #info-mobile-sheet,
+  #npc-modal,
+  .npc-faq-list,
+  #npc-mobile-sheet {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  #welcome-modal::-webkit-scrollbar,
+  .search-results::-webkit-scrollbar,
+  #info-mobile-actions::-webkit-scrollbar,
+  #info-modal::-webkit-scrollbar,
+  .info-modal-panel-body::-webkit-scrollbar,
+  .poster-modal-description::-webkit-scrollbar,
+  #poster-mobile-info::-webkit-scrollbar,
+  #info-mobile-sheet::-webkit-scrollbar,
+  #npc-modal::-webkit-scrollbar,
+  .npc-faq-list::-webkit-scrollbar,
+  #npc-mobile-sheet::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+
+  #mobile-scene-status {
+    padding: 18px;
+  }
+
+  #mobile-scene-status p {
+    width: min(calc(100vw - 24px), 320px);
+  }
+
+  #mobile-hint-toast {
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 116px);
+    width: min(calc(100vw - 24px), 336px);
+  }
+}

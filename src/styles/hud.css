@@ -1,0 +1,257 @@
+/* App HUD: 메인 화면 상단 유틸리티 바, 로드맵/미니맵 탭, 전체화면 버튼, 디버그 오버레이 스타일 */
+.debug-ui,
+#debug-ui {
+  position: fixed;
+  bottom: 10px;
+  left: 10px;
+  z-index: 9999;
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.7);
+  color: lime;
+  font-family: monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  pointer-events: none;
+}
+
+#top-utility-row {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  z-index: 10000;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: nowrap;
+  pointer-events: none;
+}
+
+#utility-tab-shell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  flex: 0 0 clamp(188px, 20vw, 252px);
+  width: clamp(188px, 20vw, 252px);
+  z-index: 10000;
+  pointer-events: auto;
+}
+
+#utility-tab-list {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.utility-tab,
+#fullscreen-toggle {
+  min-height: 34px;
+  padding: 6px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  background: rgba(7, 13, 27, 0.72);
+  color: rgba(239, 246, 255, 0.9);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 24px rgba(2, 8, 23, 0.28);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: transform 140ms ease, background 140ms ease, border-color 140ms ease;
+}
+
+.utility-tab {
+  flex: 1 1;
+}
+
+.utility-tab.active {
+  background: rgba(0, 0, 0, 0.88);
+  border-color: rgba(35, 42, 51, 0.32);
+  color: rgba(239, 246, 255, 0.96);
+}
+
+#utility-tab-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 12px;
+  background: rgba(7, 13, 27, 0.82);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 14px 30px rgba(2, 8, 23, 0.34);
+  box-sizing: border-box;
+}
+
+.route-guide-copy {
+  margin: 0;
+  color: rgba(226, 232, 240, 0.92);
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: justify;
+}
+
+.route-chip-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 4px 0 2px;
+}
+
+.route-chip-list::-webkit-scrollbar {
+  display: none;
+}
+
+.route-chip {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  flex: 0 0 auto;
+  padding: 10px 14px;
+  border: 1px solid rgba(169, 169, 169, 0.12);
+  border-radius: 14px;
+  background: rgba(7, 13, 27, 0.72);
+  color: rgba(239, 246, 255, 0.86);
+  backdrop-filter: blur(10px);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 140ms ease, background 140ms ease, border-color 140ms ease;
+}
+
+.route-chip:hover {
+  transform: translateY(-1px);
+  background: rgba(15, 23, 42, 0.82);
+}
+
+.route-chip.active {
+  transform: translateY(-1px);
+}
+
+.mini-map-content {
+  width: 100%;
+  align-items: center;
+}
+
+#utility-tab-content.mini-map-content {
+  gap: 0;
+  padding: 1px;
+}
+
+.mini-map-content canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0 auto;
+  border-radius: 6px;
+}
+
+#fullscreen-toggle {
+  position: fixed;
+  right: 14px;
+  bottom: 14px;
+  z-index: 10000;
+  min-width: 95px;
+}
+
+#fullscreen-toggle:hover {
+  transform: translateY(-1px);
+  background: rgba(15, 23, 42, 0.82);
+}
+
+@media (max-width: 900px) {
+  #top-utility-row {
+    top: 10px;
+    left: 8px;
+    right: 8px;
+    gap: 8px;
+  }
+
+  #utility-tab-shell {
+    flex-basis: clamp(156px, 36vw, 220px);
+    width: clamp(156px, 36vw, 220px);
+  }
+
+  .route-chip-list {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 4px;
+    padding: 5px 2px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .route-chip {
+    width: auto;
+    justify-content: center;
+    padding: 7px 16px;
+    border-radius: 999px;
+    text-align: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .debug-ui {
+    top: auto;
+    left: 8px;
+    bottom: 8px;
+    padding: 8px 10px;
+    font-size: 12px;
+    line-height: 1.4;
+    opacity: 0.82;
+  }
+
+  #utility-tab-shell {
+    flex-basis: clamp(148px, 38vw, 198px);
+    width: clamp(148px, 38vw, 198px);
+  }
+
+  .route-chip {
+    padding: 10px 8px;
+    font-size: 11px;
+  }
+
+  .utility-tab {
+    min-height: 44px;
+    padding: 10px 12px;
+    font-size: 11px;
+  }
+
+  #fullscreen-toggle {
+    right: 8px;
+    bottom: 12px;
+    min-width: 88px;
+    height: 44px;
+    padding: 0 12px;
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .debug-ui {
+    display: none;
+  }
+
+  .route-chip {
+    padding: 7px 10px;
+    font-size: 10px;
+    letter-spacing: 0;
+  }
+
+  #top-utility-row {
+    gap: 6px;
+  }
+
+  #utility-tab-shell {
+    flex-basis: clamp(132px, 40vw, 172px);
+    width: clamp(132px, 40vw, 172px);
+  }
+}

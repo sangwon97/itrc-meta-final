@@ -1,0 +1,62 @@
+/* Mobile Controls: 모바일 조이스틱 패드와 스틱 인터랙션 영역 스타일 */
+#mobile-joystick-wrap {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  #mobile-joystick-wrap {
+    position: fixed;
+    left: 10px;
+    bottom: 18px;
+    z-index: 10000;
+    display: block;
+    touch-action: none;
+  }
+
+  #mobile-joystick-pad {
+    position: relative;
+    width: 116px;
+    height: 116px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 50% 50%, rgba(148, 163, 184, 0.18), rgba(15, 23, 42, 0.18) 55%, rgba(2, 6, 23, 0.3)),
+      rgba(7, 13, 27, 0.5);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 24px rgba(2, 8, 23, 0.32);
+    touch-action: none;
+  }
+
+  #mobile-joystick-stick {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 52px;
+    height: 52px;
+    margin-top: -26px;
+    margin-left: -26px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.92), rgba(191, 219, 254, 0.78) 45%, rgba(59, 130, 246, 0.38));
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.28);
+    pointer-events: none;
+  }
+}
+
+@media (max-width: 480px) {
+  #mobile-joystick-wrap {
+    left: 8px;
+    bottom: 14px;
+  }
+
+  #mobile-joystick-pad {
+    width: 102px;
+    height: 102px;
+  }
+
+  #mobile-joystick-stick {
+    width: 46px;
+    height: 46px;
+    margin-top: -23px;
+    margin-left: -23px;
+  }
+}

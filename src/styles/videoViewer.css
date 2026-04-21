@@ -1,0 +1,109 @@
+/* Video Viewer: 유튜브 영상 재생 모달과 반응형 배치 스타일 */
+#tv-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10002;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(2, 6, 23, 0.76);
+  backdrop-filter: blur(8px);
+}
+
+#tv-modal {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: min(900px, calc(100vw - 24px));
+}
+
+#tv-modal-iframe-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: #000;
+  box-shadow: 0 24px 48px rgba(2, 8, 23, 0.5);
+}
+
+#tv-modal-iframe-wrap iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+#tv-modal-close {
+  align-self: flex-end;
+  padding: 8px 22px;
+  border: 1px solid var(--ui-border);
+  border-radius: 8px;
+  background: var(--ui-bg);
+  color: var(--ui-text);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+#tv-modal-close:hover {
+  background: rgba(30, 41, 59, 0.9);
+}
+
+@media (max-width: 768px) {
+  #tv-modal-backdrop {
+    padding: 10px;
+  }
+
+  #tv-modal {
+    gap: 10px;
+  }
+
+  #tv-modal-close {
+    padding: 7px 18px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  #tv-modal {
+    width: calc(100vw - 12px);
+    gap: 8px;
+  }
+
+  #tv-modal-close {
+    padding: 6px 14px;
+    font-size: 12px;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 600px) {
+  #tv-modal-backdrop {
+    padding: 10px;
+  }
+
+  #tv-modal {
+    flex-direction: row;
+    align-items: center;
+    width: auto;
+    max-width: calc(100vw - 20px);
+    gap: 12px;
+  }
+
+  #tv-modal-iframe-wrap {
+    aspect-ratio: unset;
+    height: calc(100dvh - 20px);
+    width: calc((100dvh - 20px) * 16 / 9);
+    flex-shrink: 0;
+    max-width: calc(100vw - 80px);
+  }
+
+  #tv-modal-close {
+    flex-shrink: 0;
+    align-self: center;
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+}
