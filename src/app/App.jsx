@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { assetItems, boothRouteTargetMap, demoRouteOptions, tvItems, upperPanels, verticalPanels } from '../features/scene/sceneData.js';
 import { initApiCache, fetchBooths, getTvInfo, hasNpc, getBoothName } from '../services/api.js';
+import { cdnAsset } from '../services/assetUrl.js';
 import VideoViewer from '../features/videoViewer/VideoViewer.jsx';
 import SplashScreen from '../features/entryGate/SplashScreen.jsx';
 import WelcomeModal from '../features/entryGate/WelcomeModal.jsx';
@@ -267,7 +268,7 @@ const buildBoothTvMarkup = (items, hintMode = 'bubble') => items
         rotation="0 ${rotY} 0">
       </a-entity>
       <a-entity
-        gltf-model="models/TVs/TV_New_Screen.glb"
+        gltf-model="${cdnAsset('models/TVs/TV_New_Screen.glb')}"
         tv-screen="rig: #rig; boothId: ${boothId}; imageSrc: ${imageSrc}; youtubeId: ${youtubeId}; hintMode: ${hintMode}"
         position="${x} ${y} ${z}"
         rotation="0 ${rotY} 0">
@@ -677,7 +678,7 @@ export default function App() {
               z: Number(row['Pos Z']),
               rotY: Number(row['Rotation Y (Degrees)']),
               boothName: resolveBoothName(row['Booth Number']),
-              modelSrc: 'npc/LowPolyNPC.glb',
+              modelSrc: cdnAsset('npc/LowPolyNPC.glb'),
             }));
           setNpcItems(filtered);
         } else {

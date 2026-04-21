@@ -3,6 +3,8 @@
  * 앱 초기화 시 전체 데이터를 fetch하여 캐시에 저장합니다.
  */
 
+import { cdnAsset } from './assetUrl.js';
+
 const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:1337';
 
 // ─── 캐시 ──────────────────────────────────────────────────────────────────
@@ -115,11 +117,11 @@ export function initApiCache() {
       const filename = rawPath.split('/').pop()?.replace(/\.[^.]+$/, ''); // "S1B1P1"
       const sectionMatch = filename?.match(/^(S\d+)/);
       const derivedModelPath = sectionMatch
-        ? `models/Posters/${sectionMatch[1]}/${filename}.glb`
+        ? cdnAsset(`models/Posters/${sectionMatch[1]}/${filename}.glb`)
         : null;
       // imagePath의 파일명 규칙이 신뢰 가능하면 그 값을 우선 사용한다.
       // 실제 백엔드 데이터에 modelPath 오입력이 있어도 올바른 GLB에 연결되도록 한다.
-      const modelPath = derivedModelPath || p.modelPath;
+      const modelPath = derivedModelPath || (p.modelPath ? cdnAsset(p.modelPath) : null);
 
       if (modelPath && imageUrl) {
         categoryMapCache.set(modelPath, imageUrl);

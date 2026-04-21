@@ -1,7 +1,8 @@
 // 시작 안내 팝업
 import React, { useRef, useCallback } from 'react';
+import { cdnAsset } from '../../services/assetUrl.js';
 
-const VIDEOS = ['videos/splash_video_1.mp4', 'videos/splash_video_2.mp4'];
+const VIDEOS = [cdnAsset('videos/splash_video_1.mp4'), cdnAsset('videos/splash_video_2.mp4')];
 
 export default function WelcomeModal({
   open,
