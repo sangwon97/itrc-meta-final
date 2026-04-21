@@ -607,6 +607,7 @@ export default function App() {
   const [isInitialDataReady, setIsInitialDataReady] = useState(false);
   const [isSceneAssetsReady, setIsSceneAssetsReady] = useState(false);
   const [mobileHintToast, setMobileHintToast] = useState(null);
+  const [webglContextLost, setWebglContextLost] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -787,6 +788,68 @@ export default function App() {
       document.removeEventListener('gesturestart', blockGesture);
       document.removeEventListener('gesturechange', blockGesture);
       document.removeEventListener('touchmove', blockTwoFingerTouch);
+    };
+  }, []);
+
+  useEffect(() => {
+    // 백그라운드 탭 복귀 시 누적 tick / OS 의 GPU 회수로 인한 크래시 방지.
+    // 숨겨진 동안 A-Frame 씬을 멈추고 복귀 시 재개.
+    const handleVisibilityChange = () => {
+      const scene = document.querySelector('a-scene');
+      if (!scene?.hasLoaded) return;
+      if (document.hidden) {
+        scene.pause();
+      } else {
+        scene.play();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // WebGL 컨텍스트 손실 감지. 모바일에서 화면 꺼짐 / 메모리 압박 시
+    // 브라우저가 GPU 자원을 회수하면 렌더러가 무효 상태가 되어 갑자기 크래시함.
+    let canvasCleanup = null;
+    let pollTimer = null;
+
+    const attachCanvasListeners = () => {
+      const canvas = document.querySelector('a-scene canvas');
+      if (!canvas) return false;
+
+      const handleContextLost = (event) => {
+        event.preventDefault();
+        console.warn('[webgl] context lost - 씬 일시정지 후 복구 UI 노출');
+        setWebglContextLost(true);
+        document.querySelector('a-scene')?.pause?.();
+      };
+
+      const handleContextRestored = () => {
+        console.info('[webgl] context restored - 페이지 새로고침');
+        window.location.reload();
+      };
+
+      canvas.addEventListener('webglcontextlost', handleContextLost);
+      canvas.addEventListener('webglcontextrestored', handleContextRestored);
+
+      canvasCleanup = () => {
+        canvas.removeEventListener('webglcontextlost', handleContextLost);
+        canvas.removeEventListener('webglcontextrestored', handleContextRestored);
+      };
+      return true;
+    };
+
+    if (!attachCanvasListeners()) {
+      pollTimer = window.setInterval(() => {
+        if (attachCanvasListeners()) {
+          window.clearInterval(pollTimer);
+          pollTimer = null;
+        }
+      }, 200);
+    }
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      canvasCleanup?.();
+      if (pollTimer) window.clearInterval(pollTimer);
     };
   }, []);
 
@@ -1357,6 +1420,58 @@ export default function App() {
           ) : null}
         </>
       )}
+      {webglContextLost ? (
+        <div
+          role="alertdialog"
+          aria-modal="true"
+          aria-labelledby="webgl-lost-title"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(15, 23, 42, 0.92)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 99999,
+            padding: 24,
+          }}
+        >
+          <div
+            style={{
+              background: '#1e293b',
+              color: '#f8fafc',
+              padding: '28px 32px',
+              borderRadius: 12,
+              maxWidth: 360,
+              textAlign: 'center',
+              boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5)',
+            }}
+          >
+            <h2 id="webgl-lost-title" style={{ margin: '0 0 12px', fontSize: 20 }}>
+              그래픽 연결이 끊어졌습니다
+            </h2>
+            <p style={{ margin: '0 0 20px', fontSize: 14, lineHeight: 1.6 }}>
+              잠시 자리를 비우신 사이 그래픽 자원이 해제되었습니다. 페이지를 새로고침해 주세요.
+            </p>
+            <button
+              type="button"
+              onClick={() => window.location.reload()}
+              style={{
+                padding: '10px 24px',
+                borderRadius: 8,
+                border: 'none',
+                background: '#3b82f6',
+                color: '#fff',
+                fontSize: 15,
+                fontWeight: 600,
+                cursor: 'pointer',
+              }}
+            >
+              새로고침
+            </button>
+          </div>
+        </div>
+      ) : null}
     </>
   );
 }
